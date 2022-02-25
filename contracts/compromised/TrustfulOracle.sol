@@ -19,7 +19,7 @@ contract TrustfulOracle is AccessControlEnumerable {
     mapping(address => mapping (string => uint256)) private pricesBySource;
 
     modifier onlyTrustedSource() {
-        require(hasRole(TRUSTED_SOURCE_ROLE, msg.sender));
+        require(hasRole(TRUSTED_SOURCE_ROLE, msg.sender),"wtf");
         _;
     }
 
