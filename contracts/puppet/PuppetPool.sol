@@ -22,6 +22,7 @@ contract PuppetPool is ReentrancyGuard {
     constructor (address tokenAddress, address uniswapPairAddress) {
         token = DamnValuableToken(tokenAddress);
         uniswapPair = uniswapPairAddress;
+        
     }
 
     // Allows borrowing `borrowAmount` of tokens by first depositing two times their value in ETH

